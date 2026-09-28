@@ -206,7 +206,13 @@ pub fn parse_classes(table: &ElementRef) -> HashMap<chrono::NaiveDate, [Option<C
                     let mut values = class.text();
                     let code = values.next().unwrap().to_owned();
                     let kind = values.next().map(ClassKind::from);
-                    let room = values.next().map(str::to_owned);
+                    let rest = values.collect::<String>();
+
+                    let room = if rest.trim().is_empty() {
+                        None
+                    } else {
+                        Some(rest)
+                    };
 
                     *item = Some(Class { code, kind, room });
                 }
