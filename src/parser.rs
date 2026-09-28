@@ -162,7 +162,7 @@ pub fn parse_classes(table: &ElementRef) -> HashMap<chrono::NaiveDate, [Option<C
     for col in 0..total_columns {
         for weekday in 0..7 {
             let day_header_selector = Selector::parse(&format!(
-                "body table tbody tr:nth-child({})>td:nth-child({})",
+                "tr:nth-child({})>td:nth-child({})",
                 2 + weekday * 8,
                 3 + col
             ))
@@ -185,7 +185,7 @@ pub fn parse_classes(table: &ElementRef) -> HashMap<chrono::NaiveDate, [Option<C
                 let row = weekday * 8 + i;
 
                 let class_selector = Selector::parse(&format!(
-                    "body table tbody tr:nth-child({})>td:nth-child({})",
+                    "tr:nth-child({})>td:nth-child({})",
                     row + 2,
                     2 + col - offsets[row]
                 ))
