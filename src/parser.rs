@@ -4,7 +4,7 @@ use scraper::{ElementRef, Selector, selectable::Selectable};
 use serde::{Deserialize, Serialize, de::Visitor};
 
 pub fn parse(raw: &str) -> Data {
-    let html = scraper::Html::parse_document(&raw);
+    let html = scraper::Html::parse_document(raw);
 
     let table_selector = Selector::parse("body table tbody").unwrap();
     let table = html.select(&table_selector).next().unwrap();
@@ -286,17 +286,17 @@ impl Serialize for ClassKind {
         S: serde::Serializer,
     {
         serializer.serialize_str(match self {
-            ClassKind::Lecture => "lecture",
-            ClassKind::Practice => "practice",
-            ClassKind::Lab => "lab",
-            ClassKind::Seminar => "seminar",
-            ClassKind::Project => "project",
-            ClassKind::Exam => "exam",
-            ClassKind::MakeUpExam => "make_up_exam",
-            ClassKind::Pass => "pass",
-            ClassKind::MakeUpPass => "make_up_pass",
-            ClassKind::Retake => "retake",
-            ClassKind::Unknown(inner) => inner,
+            Self::Lecture => "lecture",
+            Self::Practice => "practice",
+            Self::Lab => "lab",
+            Self::Seminar => "seminar",
+            Self::Project => "project",
+            Self::Exam => "exam",
+            Self::MakeUpExam => "make_up_exam",
+            Self::Pass => "pass",
+            Self::MakeUpPass => "make_up_pass",
+            Self::Retake => "retake",
+            Self::Unknown(inner) => inner,
         })
     }
 }
@@ -361,19 +361,19 @@ impl From<&str> for ClassKind {
 pub struct Color(u32);
 
 impl Color {
-    pub fn r(&self) -> u8 {
+    pub const fn r(self) -> u8 {
         (self.0 >> 16) as u8
     }
 
-    pub fn g(&self) -> u8 {
+    pub const fn g(self) -> u8 {
         (self.0 >> 8) as u8
     }
 
-    pub fn b(&self) -> u8 {
+    pub const fn b(self) -> u8 {
         self.0 as u8
     }
 
-    pub fn hex(&self) -> String {
+    pub fn hex(self) -> String {
         format!("{:06X}", self.0)
     }
 }

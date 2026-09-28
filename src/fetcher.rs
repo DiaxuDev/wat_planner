@@ -13,10 +13,10 @@ pub enum Term {
 }
 
 impl Term {
-    pub fn value(self) -> &'static str {
+    pub const fn value(self) -> &'static str {
         match self {
-            Term::Winter => "zima",
-            Term::Summer => "lato",
+            Self::Winter => "zima",
+            Self::Summer => "lato",
         }
     }
 }
