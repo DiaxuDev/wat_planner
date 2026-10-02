@@ -61,7 +61,7 @@ impl FetchCommand {
         let raw = fetch_schedule(term, &self.group)?;
 
         println!("Parsing....");
-        let data = parse(&raw);
+        let data = parse(&raw)?;
 
         println!("Saving...");
         std::fs::create_dir_all(

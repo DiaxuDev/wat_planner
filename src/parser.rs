@@ -4,22 +4,26 @@ use scraper::{ElementRef, Selector, selectable::Selectable};
 
 use crate::data::{Class, ClassKind, Color, Data, Professor, Subject};
 
-pub fn parse(raw: &str) -> Data {
+pub fn parse(raw: &str) -> Result<Data> {
     let html = scraper::Html::parse_document(raw);
 
-    let table_selector = Selector::parse("body table tbody").unwrap();
-    let table = html.select(&table_selector).next().unwrap();
+    let table_selector = Selector::parse("body table tbody").map_err(|_| Error::InvalidSelector)?;
+    let table = html
+        .select(&table_selector)
+        .next()
+        .ok_or(Error::NoElement)?;
 
-    let legend = parse_legend(&table);
-    let classes = parse_classes(&table);
+    let legend = parse_legend(&table)?;
+    let classes = parse_classes(&table)?;
 
-    Data { legend, classes }
+    Ok(Data { legend, classes })
 }
 
-fn parse_legend(table: &ElementRef) -> HashMap<String, Subject> {
-    let rows_selector = Selector::parse("tr").unwrap();
-    let last_selector = Selector::parse("td:last-child").unwrap();
-    let second_last_selector = Selector::parse("td:nth-last-child(2)").unwrap();
+fn parse_legend(table: &ElementRef) -> Result<HashMap<String, Subject>> {
+    let rows_selector = Selector::parse("tr").map_err(|_| Error::InvalidSelector)?;
+    let last_selector = Selector::parse("td:last-child").map_err(|_| Error::InvalidSelector)?;
+    let second_last_selector =
+        Selector::parse("td:nth-last-child(2)").map_err(|_| Error::InvalidSelector)?;
 
     let mut subjects = HashMap::<String, Subject>::new();
 
@@ -33,18 +37,18 @@ fn parse_legend(table: &ElementRef) -> HashMap<String, Subject> {
             let details = element
                 .select(&last_selector)
                 .next()
-                .unwrap()
+                .ok_or(Error::NoElement)?
                 .text()
                 .next()
-                .unwrap();
+                .ok_or(Error::NoText)?;
 
-            let (kind, hours) = details.split_once(' ').unwrap();
+            let (kind, hours) = details.split_once(' ').ok_or(Error::UnexpectedFormat)?;
 
             let kind = ClassKind::from(kind.to_lowercase().as_str());
-            let hours: u8 = hours.parse().unwrap();
+            let hours: u8 = hours.parse()?;
 
             let professor = Professor {
-                name: (!name.trim().is_empty()).then_some(name),
+                name: Some(name),
                 hours,
             };
 
@@ -56,8 +60,14 @@ fn parse_legend(table: &ElementRef) -> HashMap<String, Subject> {
 
             curr_span = None;
         } else {
-            let first = element.select(&second_last_selector).next().unwrap();
-            let second = element.select(&last_selector).next().unwrap();
+            let first = element
+                .select(&second_last_selector)
+                .next()
+                .ok_or(Error::NoElement)?;
+            let second = element
+                .select(&last_selector)
+                .next()
+                .ok_or(Error::NoElement)?;
 
             let header_color = first
                 .attr("style")
@@ -85,12 +95,15 @@ fn parse_legend(table: &ElementRef) -> HashMap<String, Subject> {
                     professors = HashMap::new();
                 }
 
-                let abbreviation = first.text().next().unwrap().to_owned();
-                let name = second.text().next().unwrap().to_owned();
+                let abbreviation = first.text().next().ok_or(Error::NoText)?.to_owned();
+                let name = second.text().next().ok_or(Error::NoText)?.to_owned();
 
                 curr_header = Some((abbreviation, name, color));
             } else {
-                let name_el = element.select(&last_selector).next().unwrap();
+                let name_el = element
+                    .select(&last_selector)
+                    .next()
+                    .ok_or(Error::NoElement)?;
                 let name = name_el
                     .text()
                     .next()
@@ -104,15 +117,15 @@ fn parse_legend(table: &ElementRef) -> HashMap<String, Subject> {
                 let details = element
                     .select(&second_last_selector)
                     .next()
-                    .unwrap()
+                    .ok_or(Error::NoElement)?
                     .text()
                     .next()
-                    .unwrap();
+                    .ok_or(Error::NoText)?;
 
-                let (kind, hours) = details.split_once(' ').unwrap();
+                let (kind, hours) = details.split_once(' ').ok_or(Error::UnexpectedFormat)?;
 
                 let kind = ClassKind::from(kind.to_lowercase().as_str());
-                let hours: u8 = hours.parse().unwrap();
+                let hours: u8 = hours.parse()?;
 
                 let professor = Professor { name, hours };
 
@@ -136,11 +149,12 @@ fn parse_legend(table: &ElementRef) -> HashMap<String, Subject> {
         );
     }
 
-    subjects
+    Ok(subjects)
 }
 
-fn parse_classes(table: &ElementRef) -> HashMap<chrono::NaiveDate, [Option<Class>; 7]> {
-    let header_selector = Selector::parse("tr:first-child>td").unwrap();
+fn parse_classes(table: &ElementRef) -> Result<HashMap<chrono::NaiveDate, [Option<Class>; 7]>> {
+    let header_selector =
+        Selector::parse("tr:first-child>td").map_err(|_| Error::InvalidSelector)?;
 
     let total_columns = table
         .select(&header_selector)
@@ -163,17 +177,27 @@ fn parse_classes(table: &ElementRef) -> HashMap<chrono::NaiveDate, [Option<Class
                 2 + weekday * 8,
                 3 + col
             ))
-            .unwrap();
-            let day_header = table.select(&day_header_selector).next().unwrap();
+            .map_err(|_| Error::InvalidSelector)?;
+
+            let day_header = table
+                .select(&day_header_selector)
+                .next()
+                .ok_or(Error::NoElement)?;
             if matches!(day_header.attr("background"), Some("outofrange.gif")) {
                 continue;
             }
 
-            let (day, month) = day_header.text().next().unwrap().split_once(' ').unwrap();
-            let day = day.parse::<u32>().unwrap();
-            let month = month_from_roman(month).unwrap();
+            let (day, month) = day_header
+                .text()
+                .next()
+                .ok_or(Error::NoText)?
+                .split_once(' ')
+                .ok_or(Error::UnexpectedFormat)?;
+            let day = day.parse::<u32>()?;
+            let month = month_from_roman(month)?;
             let year = if month > 9 { 2026 } else { 2027 };
-            let date = chrono::NaiveDate::from_ymd_opt(year, month, day).unwrap();
+            let date =
+                chrono::NaiveDate::from_ymd_opt(year, month, day).ok_or(Error::UnexpectedFormat)?;
 
             let mut classes: [Option<Class>; 7] = Default::default();
             for (i, item) in classes.iter_mut().enumerate() {
@@ -184,8 +208,13 @@ fn parse_classes(table: &ElementRef) -> HashMap<chrono::NaiveDate, [Option<Class
                     row + 2,
                     2 + col - offsets[row]
                 ))
-                .unwrap();
-                let class = table.select(&class_selector).next().unwrap();
+                .map_err(|_| Error::InvalidSelector)?;
+
+                let class = table
+                    .select(&class_selector)
+                    .next()
+                    .ok_or(Error::NoElement)?;
+
                 if class.attr("bgcolor").is_some() {
                     if let Some(cols) = class.attr("colspan").and_then(|v| v.parse::<u8>().ok()) {
                         offsets[row] += cols - 1;
@@ -199,7 +228,7 @@ fn parse_classes(table: &ElementRef) -> HashMap<chrono::NaiveDate, [Option<Class
                     }
 
                     let mut values = class.text();
-                    let code = values.next().unwrap().to_owned();
+                    let code = values.next().ok_or(Error::NoText)?.to_owned();
                     let kind = values.next().map(ClassKind::from);
                     let rest = values.collect::<String>();
 
@@ -219,23 +248,39 @@ fn parse_classes(table: &ElementRef) -> HashMap<chrono::NaiveDate, [Option<Class
         }
     }
 
-    result
+    Ok(result)
 }
 
-fn month_from_roman(value: &str) -> Option<u32> {
+fn month_from_roman(value: &str) -> Result<u32> {
     match value {
-        "I" => Some(1),
-        "II" => Some(2),
-        "III" => Some(3),
-        "IV" => Some(4),
-        "V" => Some(5),
-        "VI" => Some(6),
-        "VII" => Some(7),
-        "VIII" => Some(8),
-        "IX" => Some(9),
-        "X" => Some(10),
-        "XI" => Some(11),
-        "XII" => Some(12),
-        _ => None,
+        "I" => Ok(1),
+        "II" => Ok(2),
+        "III" => Ok(3),
+        "IV" => Ok(4),
+        "V" => Ok(5),
+        "VI" => Ok(6),
+        "VII" => Ok(7),
+        "VIII" => Ok(8),
+        "IX" => Ok(9),
+        "X" => Ok(10),
+        "XI" => Ok(11),
+        "XII" => Ok(12),
+        _ => Err(Error::UnexpectedFormat),
     }
 }
+
+#[derive(thiserror::Error, Debug)]
+pub enum Error {
+    #[error("invalid selector")]
+    InvalidSelector,
+    #[error("element not found")]
+    NoElement,
+    #[error("no text found")]
+    NoText,
+    #[error("text was in an unexpected format")]
+    UnexpectedFormat,
+    #[error(transparent)]
+    ParseInt(#[from] std::num::ParseIntError),
+}
+
+type Result<T> = std::result::Result<T, Error>;
