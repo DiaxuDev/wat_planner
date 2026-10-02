@@ -117,6 +117,7 @@ impl From<&str> for ClassKind {
 #[serde(transparent)]
 pub struct Color(u32);
 
+#[allow(clippy::cast_possible_truncation)]
 impl Color {
     pub const fn r(self) -> u8 {
         (self.0 >> 16) as u8

@@ -31,7 +31,7 @@ fn parse_legend(table: &ElementRef) -> HashMap<String, Subject> {
     for element in table.select(&rows_selector).skip(1) {
         if let Some(name) = curr_span {
             let details = element
-                .select(&second_last_selector)
+                .select(&last_selector)
                 .next()
                 .unwrap()
                 .text()
@@ -98,7 +98,7 @@ fn parse_legend(table: &ElementRef) -> HashMap<String, Subject> {
                     .map(str::to_owned);
 
                 if name_el.attr("rowspan").is_some() {
-                    curr_span = name.clone();
+                    curr_span.clone_from(&name);
                 }
 
                 let details = element
