@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="pl">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Plan zajęć</title>
+
+        <style>
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            ul,
+            ol {
+                list-style-type: none;
+            }
+
+            body {
+                background-color: oklch(20% 0 0);
+                color: oklch(90% 0 0);
+                width: 100%;
+                height: 100vh;
+                padding: 8px;
+
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                font-size: 14px;
+            }
+
+            #root {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                grid-template-rows: auto, repeat(7, 1fr);
+                column-gap: 8px;
+                height: 100%;
+            }
+
+            .day {
+                grid-row: 1 / 9;
+                min-height: 0;
+                display: grid;
+                grid-template-rows: subgrid;
+                height: 100%;
+                background-color: oklch(25% 0 0);
+                border: 1px solid oklch(30% 0 0);
+                border-radius: 5px;
+
+                & > .header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+
+                    padding: 4px;
+
+                    background-color: oklch(22% 0 0);
+                    border-bottom: 1px solid oklch(30% 0 0);
+
+                    .date {
+                        color: oklch(70% 0 0);
+                    }
+                }
+
+                .slot {
+                    min-height: 0;
+                    padding: 4px;
+                    border-bottom: 1px solid oklch(30% 0 0);
+
+                    .class {
+                        min-height: 0;
+                        height: 100%;
+                        padding: 4px;
+
+                        display: flex;
+                        flex-direction: column;
+
+                        background-color: color-mix(
+                            in srgb,
+                            var(--color, black) 40%,
+                            black
+                        );
+                        border-left: 5px solid var(--color, black);
+                        border-radius: 5px;
+
+                        & > .header {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+
+                            .hour {
+                                color: oklch(70% 0 0);
+                                font-size: 0.9rem;
+                            }
+                        }
+
+                        .name {
+                            font-weight: 500;
+                        }
+                    }
+
+                    &:last-child {
+                        border-bottom-color: transparent;
+                    }
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="root">{{generated}}</div>
+    </body>
+</html>

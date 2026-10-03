@@ -1,6 +1,4 @@
-use chrono::Datelike;
-
-pub fn fetch_schedule(term: Term, group: &str) -> reqwest::Result<String> {
+pub fn fetch(term: Term, group: &str) -> reqwest::Result<String> {
     reqwest::blocking::get(format!(
         "https://wel.wat.edu.pl/planyzajec/{term}/{group}.htm"
     ))?
@@ -22,8 +20,8 @@ impl Term {
         }
     }
 
-    pub fn detect() -> Self {
-        match chrono::Local::now().month() {
+    pub fn from_month(month: u32) -> Self {
+        match month {
             1 | 2 | 7..=12 => Self::Winter,
             3..=6 => Self::Summer,
             _ => unreachable!(),

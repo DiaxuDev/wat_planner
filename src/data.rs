@@ -9,7 +9,7 @@ pub struct Data {
     pub classes: HashMap<chrono::NaiveDate, [Option<Class>; 7]>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Class {
     pub code: String,
     pub kind: Option<ClassKind>,
@@ -23,7 +23,7 @@ pub struct Subject {
     pub professors: HashMap<ClassKind, Vec<Professor>>,
 }
 
-#[derive(Hash, PartialEq, Eq, Debug)]
+#[derive(Hash, PartialEq, Eq, Clone, Debug)]
 pub enum ClassKind {
     Lecture,
     Practice,

@@ -5,6 +5,7 @@ use yansi::Paint;
 
 use crate::cli::Cli;
 
+mod cache;
 mod cli;
 mod data;
 mod error;
@@ -12,9 +13,6 @@ mod fetcher;
 mod parser;
 
 fn main() {
-    // let raw = std::fs::read_to_string("schedule.json")?;
-    // let data: Data = serde_json::from_str(&raw)?;
-
     // let today = chrono::Local::now().date_naive();
     // let start = today.week(chrono::Weekday::Mon).first_day();
     // for i in 0..7 {

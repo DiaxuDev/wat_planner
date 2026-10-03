@@ -217,9 +217,9 @@ fn parse_classes(
             let month = month_from_roman(month)?;
             let date = chrono::NaiveDate::from_ymd_opt(
                 if month > 9 {
-                    year.0 as i32
+                    i32::from(year.0)
                 } else {
-                    year.1 as i32
+                    i32::from(year.1)
                 },
                 month,
                 day.parse::<u32>()?,
