@@ -41,7 +41,7 @@ impl Cli {
 impl Command {
     pub fn run(&self) -> Result<()> {
         match self {
-            Command::Fetch(fetch_command) => fetch_command.run(),
+            Self::Fetch(fetch_command) => fetch_command.run(),
         }
     }
 }
