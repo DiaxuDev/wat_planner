@@ -71,6 +71,16 @@
                     padding: 4px;
                     border-bottom: 1px solid oklch(30% 0 0);
 
+                    &.empty {
+                        background-image: repeating-linear-gradient(
+                            135deg,
+                            transparent,
+                            transparent 10px,
+                            rgba(255, 255, 255, 0.05) 11px,
+                            rgba(255, 255, 255, 0.05) 12px
+                        );
+                    }
+
                     .class {
                         min-height: 0;
                         height: 100%;

@@ -67,7 +67,7 @@ impl GenerateCommand {
                             let _ = write!(out, r#"<div class="slot"><div class="class"{style}><div class="header"><span class="hour">{}:{:0>2} - {}:{:0>2}</span><span class="kind">{kind}</span></div><span class="name">{name}</span><span class="room">{room}</span><span class="professor">{professor}</span></div></div>"#, hour.0 / 60, hour.0 % 60, hour.1 / 60, hour.1 % 60);
                         }
                         None => {
-                            let _ = write!(out, r#"<div class="slot"></div>"#);
+                            let _ = write!(out, r#"<div class="slot empty"></div>"#);
                         }
                     }
                 }
