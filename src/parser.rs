@@ -232,7 +232,7 @@ fn parse_classes(
 
                 let class_selector = Selector::parse(&format!(
                     "tr:nth-child({})>td:nth-child({})",
-                    row + 2,
+                    row + 3,
                     2 + col - offsets[row]
                 ))
                 .map_err(|_| Error::InvalidSelector)?;
