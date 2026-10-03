@@ -284,7 +284,7 @@ fn parse_classes(
                     if let Some(rows) = class.attr("rowspan").and_then(|v| v.parse::<usize>().ok())
                     {
                         span = (item.clone(), rows - 1);
-                        for offset in offsets.iter_mut().skip(row + 1).take(rows) {
+                        for offset in offsets.iter_mut().skip(row + 1).take(rows - 1) {
                             offset.0 += 1;
                         }
                     }
