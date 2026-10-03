@@ -13,10 +13,28 @@ pub fn parse(raw: &str) -> Result<Data> {
         .next()
         .ok_or(Error::NoElement)?;
 
-    let legend = parse_legend(&table)?;
-    let classes = parse_classes(&table)?;
+    let header_selector = Selector::parse("body>b:first-child>font>p:nth-child(3)>b>b>font")
+        .map_err(|_| Error::InvalidSelector)?;
+    let (lower, upper) = html
+        .select(&header_selector)
+        .next()
+        .ok_or(Error::NoElement)?
+        .text()
+        .next()
+        .ok_or(Error::NoText)?
+        .trim_matches(|c: char| !c.is_ascii_digit() && c != '/')
+        .split_once('/')
+        .ok_or(Error::UnexpectedFormat)?;
 
-    Ok(Data { legend, classes })
+    let year = (lower.parse()?, upper.parse()?);
+    let legend = parse_legend(&table)?;
+    let classes = parse_classes(&table, year)?;
+
+    Ok(Data {
+        year,
+        legend,
+        classes,
+    })
 }
 
 fn parse_legend(table: &ElementRef) -> Result<HashMap<String, Subject>> {
@@ -152,7 +170,10 @@ fn parse_legend(table: &ElementRef) -> Result<HashMap<String, Subject>> {
     Ok(subjects)
 }
 
-fn parse_classes(table: &ElementRef) -> Result<HashMap<chrono::NaiveDate, [Option<Class>; 7]>> {
+fn parse_classes(
+    table: &ElementRef,
+    year: (u16, u16),
+) -> Result<HashMap<chrono::NaiveDate, [Option<Class>; 7]>> {
     let header_selector =
         Selector::parse("tr:first-child>td").map_err(|_| Error::InvalidSelector)?;
 
@@ -193,11 +214,17 @@ fn parse_classes(table: &ElementRef) -> Result<HashMap<chrono::NaiveDate, [Optio
                 .ok_or(Error::NoText)?
                 .split_once(' ')
                 .ok_or(Error::UnexpectedFormat)?;
-            let day = day.parse::<u32>()?;
             let month = month_from_roman(month)?;
-            let year = if month > 9 { 2026 } else { 2027 };
-            let date =
-                chrono::NaiveDate::from_ymd_opt(year, month, day).ok_or(Error::UnexpectedFormat)?;
+            let date = chrono::NaiveDate::from_ymd_opt(
+                if month > 9 {
+                    year.0 as i32
+                } else {
+                    year.1 as i32
+                },
+                month,
+                day.parse::<u32>()?,
+            )
+            .ok_or(Error::UnexpectedFormat)?;
 
             let mut classes: [Option<Class>; 7] = Default::default();
             for (i, item) in classes.iter_mut().enumerate() {

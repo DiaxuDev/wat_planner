@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize, de::Visitor};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Data {
+    pub year: (u16, u16),
     pub legend: HashMap<String, Subject>,
     pub classes: HashMap<chrono::NaiveDate, [Option<Class>; 7]>,
 }
