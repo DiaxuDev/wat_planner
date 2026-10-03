@@ -189,7 +189,7 @@ fn parse_classes(
         .sum::<u8>();
 
     let mut result = HashMap::new();
-    let mut offsets = [0; 55];
+    let mut offsets = [(0, 0); 55];
 
     for col in 0..total_columns {
         for weekday in 0..7 {
@@ -227,15 +227,33 @@ fn parse_classes(
             .ok_or(Error::UnexpectedFormat)?;
 
             let mut classes: [Option<Class>; 7] = Default::default();
+            let mut span: (Option<Class>, usize) = Default::default();
             for (i, item) in classes.iter_mut().enumerate() {
+                if span.1 > 0 {
+                    span.1 -= 1;
+
+                    if span.1 == 0 {
+                        *item = span.0;
+                        span = (None, 0);
+                    } else {
+                        item.clone_from(&span.0);
+                    }
+
+                    continue;
+                }
+
                 let row = weekday * 8 + i;
 
                 let class_selector = Selector::parse(&format!(
                     "tr:nth-child({})>td:nth-child({})",
                     row + 3,
-                    2 + col - offsets[row]
+                    2 + col - offsets[row].0 + offsets[row].1
                 ))
                 .map_err(|_| Error::InvalidSelector)?;
+
+                if offsets[row].1 > 0 {
+                    offsets[row].1 -= 1;
+                }
 
                 let class = table
                     .select(&class_selector)
@@ -243,17 +261,6 @@ fn parse_classes(
                     .ok_or(Error::NoElement)?;
 
                 if class.attr("bgcolor").is_some() {
-                    if let Some(cols) = class.attr("colspan").and_then(|v| v.parse::<u8>().ok()) {
-                        offsets[row] += cols - 1;
-                    }
-
-                    if let Some(rows) = class.attr("rowspan").and_then(|v| v.parse::<usize>().ok())
-                    {
-                        for offset in offsets.iter_mut().skip(row + 1).take(rows) {
-                            *offset += 1;
-                        }
-                    }
-
                     let mut values = class.text();
                     let code = values.next().ok_or(Error::NoText)?.to_owned();
                     let kind = values
@@ -268,6 +275,19 @@ fn parse_classes(
                     };
 
                     *item = Some(Class { code, kind, room });
+
+                    if let Some(cols) = class.attr("colspan").and_then(|v| v.parse::<u8>().ok()) {
+                        offsets[row].0 += cols - 1;
+                        offsets[row].1 = cols - 2;
+                    }
+
+                    if let Some(rows) = class.attr("rowspan").and_then(|v| v.parse::<usize>().ok())
+                    {
+                        span = (item.clone(), rows - 1);
+                        for offset in offsets.iter_mut().skip(row + 1).take(rows) {
+                            offset.0 += 1;
+                        }
+                    }
                 }
             }
 
