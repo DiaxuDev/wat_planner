@@ -256,7 +256,9 @@ fn parse_classes(
 
                     let mut values = class.text();
                     let code = values.next().ok_or(Error::NoText)?.to_owned();
-                    let kind = values.next().map(ClassKind::from);
+                    let kind = values
+                        .next()
+                        .map(|x| ClassKind::from(x.to_lowercase().as_str()));
                     let rest = values.collect::<String>();
 
                     let room = if rest.trim().is_empty() {
