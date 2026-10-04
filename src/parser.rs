@@ -189,7 +189,7 @@ fn parse_classes(
         .sum::<u8>();
 
     let mut result = HashMap::new();
-    let mut offsets = [(0, 0); 55];
+    let mut offsets: [(u8, u8); 55] = [(0, 0); 55];
 
     for col in 0..total_columns {
         for weekday in 0..7 {
@@ -247,13 +247,9 @@ fn parse_classes(
                 let class_selector = Selector::parse(&format!(
                     "tr:nth-child({})>td:nth-child({})",
                     row + 3,
-                    2 + col - offsets[row].0 + offsets[row].1
+                    2 + col - offsets[row].0 + offsets[row].1.saturating_sub(1)
                 ))
                 .map_err(|_| Error::InvalidSelector)?;
-
-                if offsets[row].1 > 0 {
-                    offsets[row].1 -= 1;
-                }
 
                 let class = table
                     .select(&class_selector)
@@ -276,9 +272,14 @@ fn parse_classes(
 
                     *item = Some(Class { code, kind, room });
 
-                    if let Some(cols) = class.attr("colspan").and_then(|v| v.parse::<u8>().ok()) {
-                        offsets[row].0 += cols - 1;
-                        offsets[row].1 = cols - 2;
+                    if offsets[row].1 == 0 {
+                        if let Some(cols) = class.attr("colspan").and_then(|v| v.parse::<u8>().ok())
+                        {
+                            offsets[row].0 += cols - 1;
+                            offsets[row].1 = cols - 1;
+                        }
+                    } else {
+                        offsets[row].1 -= 1;
                     }
 
                     if let Some(rows) = class.attr("rowspan").and_then(|v| v.parse::<usize>().ok())
