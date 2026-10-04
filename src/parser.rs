@@ -62,7 +62,7 @@ fn parse_legend(table: &ElementRef) -> Result<HashMap<String, Subject>> {
 
             let (kind, hours) = details.split_once(' ').ok_or(Error::UnexpectedFormat)?;
 
-            let kind = ClassKind::from(kind.to_lowercase().as_str());
+            let kind = ClassKind::from(kind.to_lowercase());
             let hours: u8 = hours.parse()?;
 
             let professor = Professor {
@@ -142,7 +142,7 @@ fn parse_legend(table: &ElementRef) -> Result<HashMap<String, Subject>> {
 
                 let (kind, hours) = details.split_once(' ').ok_or(Error::UnexpectedFormat)?;
 
-                let kind = ClassKind::from(kind.to_lowercase().as_str());
+                let kind = ClassKind::from(kind.to_lowercase());
                 let hours: u8 = hours.parse()?;
 
                 let professor = Professor { name, hours };
@@ -259,9 +259,7 @@ fn parse_classes(
                 if class.attr("bgcolor").is_some() {
                     let mut values = class.text();
                     let code = values.next().ok_or(Error::NoText)?.to_owned();
-                    let kind = values
-                        .next()
-                        .map(|x| ClassKind::from(x.to_lowercase().as_str()));
+                    let kind = values.next().map(|x| ClassKind::from(x.to_lowercase()));
                     let rest = values.collect::<String>();
 
                     let room = if rest.trim().is_empty() {

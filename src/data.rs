@@ -96,9 +96,9 @@ impl<'de> Deserialize<'de> for ClassKind {
     }
 }
 
-impl From<&str> for ClassKind {
-    fn from(value: &str) -> Self {
-        match value {
+impl From<String> for ClassKind {
+    fn from(value: String) -> Self {
+        match value.as_str() {
             "w" => Self::Lecture,
             "ć" => Self::Practice,
             "l" => Self::Lab,
@@ -109,7 +109,7 @@ impl From<&str> for ClassKind {
             "z" => Self::Pass,
             "zp" => Self::MakeUpPass,
             "x" => Self::Retake,
-            _ => Self::Unknown(value.to_owned()),
+            _ => Self::Unknown(value),
         }
     }
 }
