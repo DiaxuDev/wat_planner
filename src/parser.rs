@@ -258,17 +258,23 @@ fn parse_classes(
 
                 if class.attr("bgcolor").is_some() {
                     let mut values = class.text();
-                    let code = values.next().ok_or(Error::NoText)?.to_owned();
-                    let kind = values.next().map(|x| ClassKind::from(x.to_lowercase()));
-                    let rest = values.collect::<String>();
-
-                    let room = if rest.trim().is_empty() {
-                        None
+                    let code_or_percentage = values.next().ok_or(Error::NoText)?;
+                    let (code, kind, info) = if code_or_percentage
+                        .chars()
+                        .all(|c| c.is_ascii_digit() || c == '%')
+                    {
+                        let code = values.next().ok_or(Error::NoText)?.to_owned();
+                        let kind = values.next().map(|x| ClassKind::from(x.to_lowercase()));
+                        let mut info = values.map(str::to_owned).collect::<Vec<_>>();
+                        info.push(code_or_percentage.to_owned());
+                        (code, kind, info)
                     } else {
-                        Some(rest)
+                        let kind = values.next().map(|x| ClassKind::from(x.to_lowercase()));
+                        let info = values.map(str::to_owned).collect();
+                        (code_or_percentage.to_owned(), kind, info)
                     };
 
-                    *item = Some(Class { code, kind, room });
+                    *item = Some(Class { code, kind, info });
 
                     if offsets[row].1 == 0 {
                         if let Some(cols) = class.attr("colspan").and_then(|v| v.parse::<u8>().ok())

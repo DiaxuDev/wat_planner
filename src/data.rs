@@ -13,7 +13,7 @@ pub struct Data {
 pub struct Class {
     pub code: String,
     pub kind: Option<ClassKind>,
-    pub room: Option<String>,
+    pub info: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

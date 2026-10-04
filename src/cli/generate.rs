@@ -54,8 +54,6 @@ impl GenerateCommand {
                                 ClassKind::Unknown(inner) => inner,
                             });
 
-                            let room = class.room.as_deref().unwrap_or("Brak");
-
                             let professor = match class.kind {
                                 Some(ref kind) => match details {
                                     Some(details) => details.professors.get(kind).map(|professors| professors.iter().filter_map(|x| x.name.as_deref()).collect::<Vec<_>>().join(", ")),
@@ -64,7 +62,7 @@ impl GenerateCommand {
                                 None => None,
                             }.unwrap_or_else(|| "Brak".into());
 
-                            let _ = write!(out, r#"<div class="slot"><div class="class"{style}><div class="header"><span class="hour">{}:{:0>2} - {}:{:0>2}</span><span class="kind">{kind}</span></div><span class="name">{name}</span><span class="room">{room}</span><span class="professor">{professor}</span></div></div>"#, hour.0 / 60, hour.0 % 60, hour.1 / 60, hour.1 % 60);
+                            let _ = write!(out, r#"<div class="slot"><div class="class"{style}><div class="header"><span class="hour">{}:{:0>2} - {}:{:0>2}</span><span class="kind">{kind}</span></div><span class="name">{name}</span><span class="room">{}</span><span class="professor">{professor}</span></div></div>"#, hour.0 / 60, hour.0 % 60, hour.1 / 60, hour.1 % 60, class.info.join("<br>"));
                         }
                         None => {
                             let _ = write!(out, r#"<div class="slot empty"></div>"#);
