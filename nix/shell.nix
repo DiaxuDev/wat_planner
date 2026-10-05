@@ -6,6 +6,7 @@
   clippy,
   rustfmt,
   taplo,
+  djlint,
 }:
 mkShell {
   name = "wat-dev";
@@ -17,5 +18,6 @@ mkShell {
     clippy
     rustfmt
     taplo
+    djlint
   ];
 }

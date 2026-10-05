@@ -12,7 +12,7 @@ pub struct Data {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Class {
     pub code: String,
-    pub kind: Option<ClassKind>,
+    pub kind: ClassKind,
     pub info: Vec<String>,
 }
 
@@ -25,6 +25,7 @@ pub struct Subject {
 
 #[derive(Hash, PartialEq, Eq, Clone, Debug)]
 pub enum ClassKind {
+    None,
     Lecture,
     Practice,
     Lab,
@@ -44,6 +45,7 @@ impl Serialize for ClassKind {
         S: serde::Serializer,
     {
         serializer.serialize_str(match self {
+            Self::None => "none",
             Self::Lecture => "lecture",
             Self::Practice => "practice",
             Self::Lab => "lab",
@@ -72,6 +74,7 @@ impl Visitor<'_> for ClassKindVisitor {
         E: serde::de::Error,
     {
         Ok(match v {
+            "none" => ClassKind::None,
             "lecture" => ClassKind::Lecture,
             "practice" => ClassKind::Practice,
             "lab" => ClassKind::Lab,
@@ -133,7 +136,7 @@ impl Color {
     }
 
     pub fn hex(self) -> String {
-        format!("{:06X}", self.0)
+        format!("#{:06X}", self.0)
     }
 }
 

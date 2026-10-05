@@ -1,0 +1,14 @@
+{
+  "languages": {
+    "HTML": {
+      "formatter": [
+        {
+          "external": {
+            "command": "djlint",
+            "arguments": ["-", "--reformat", "{buffer_path}"],
+          },
+        },
+      ],
+    },
+  },
+}

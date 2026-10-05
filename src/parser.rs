@@ -264,12 +264,16 @@ fn parse_classes(
                         .all(|c| c.is_ascii_digit() || c == '%')
                     {
                         let code = values.next().ok_or(Error::NoText)?.to_owned();
-                        let kind = values.next().map(|x| ClassKind::from(x.to_lowercase()));
+                        let kind = values
+                            .next()
+                            .map_or(ClassKind::None, |x| ClassKind::from(x.to_lowercase()));
                         let mut info = values.map(str::to_owned).collect::<Vec<_>>();
                         info.push(code_or_percentage.to_owned());
                         (code, kind, info)
                     } else {
-                        let kind = values.next().map(|x| ClassKind::from(x.to_lowercase()));
+                        let kind = values
+                            .next()
+                            .map_or(ClassKind::None, |x| ClassKind::from(x.to_lowercase()));
                         let info = values.map(str::to_owned).collect();
                         (code_or_percentage.to_owned(), kind, info)
                     };

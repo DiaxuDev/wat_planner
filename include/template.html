@@ -1,10 +1,9 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pl">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Plan zajęć</title>
-
         <style>
             *,
             *::before,
@@ -35,10 +34,11 @@
 
             #root {
                 display: grid;
-                grid-template-columns: repeat(5, 1fr);
+                grid-template-columns: repeat({{days | length}}, 1fr);
                 grid-template-rows: auto repeat(7, 1fr);
                 column-gap: 8px;
                 height: 100%;
+                width: 100%;
             }
 
             .day {
@@ -121,6 +121,37 @@
         </style>
     </head>
     <body>
-        <div id="root">{{generated}}</div>
+        <div id="root">
+            {% for day in days -%}
+                <div class="day">
+                    <div class="header">
+                        <span class="weekday">{{ day.weekday }}</span>
+                        <span class="date">{{ day.date }}</span>
+                    </div>
+                    {% for class in day.classes -%}
+                        {% if class -%}
+                            <div class="slot">
+                                <div class="class"
+                                     {% if class.color %} style="--color: {{ class.color }}" {% endif %}>
+                                    <div class="header">
+                                        <span class="hour">{{ class.hour }}</span>
+                                        <span class="kind">{{ class.kind }}</span>
+                                    </div>
+                                    <span class="name">{{ class.name }}</span>
+                                    <p class="info">
+                                        {% for line in class.info -%}
+                                            <span>{{ line }}</span>
+                                        {% endfor -%}
+                                    </p>
+                                    <span class="professor">{{ class.professors | join(sep = ", ") }}</span>
+                                </div>
+                            </div>
+                        {% else -%}
+                            <div class="slot empty"></div>
+                        {% endif -%}
+                    {% endfor -%}
+                </div>
+            {% endfor -%}
+        </div>
     </body>
 </html>
