@@ -1,6 +1,6 @@
 #![allow(clippy::zero_prefixed_literal)]
 
-use std::{fs::File, io::Write};
+use std::{ffi::OsStr, fs::File, io::Write, path::PathBuf};
 
 use chrono::{Datelike, NaiveDate};
 use serde::Serialize;
@@ -14,6 +14,9 @@ pub struct GenerateCommand {
     pub group: String,
     /// Which date to generate the schedule for. If left empty will be detected automatically
     pub date: Option<NaiveDate>,
+    /// Path to a TERA template file. If left empty default template will be used
+    #[arg(short, long)]
+    pub template: Option<PathBuf>,
 }
 
 #[derive(Serialize)]
@@ -38,6 +41,17 @@ impl GenerateCommand {
         let date = self
             .date
             .unwrap_or_else(|| chrono::Local::now().date_naive());
+
+        let template = match self.template {
+            Some(ref path) => &std::fs::read_to_string(path)?,
+            None => TEMPLATE,
+        };
+
+        let extension = self
+            .template
+            .as_ref()
+            .and_then(|path| path.extension())
+            .unwrap_or(OsStr::new("html"));
 
         let data = read_or_save(&self.group, Term::from_month(date.month()))?;
         let start = date.week(chrono::Weekday::Mon).first_day();
@@ -114,9 +128,11 @@ impl GenerateCommand {
             })
             .collect();
 
-        let mut file = File::create("schedule.html")?;
+        let mut path = PathBuf::from("schedule");
+        path.set_extension(extension);
 
-        Tera::default().render_str_to(TEMPLATE, &context! { days => &days }, false, &file)?;
+        let mut file = File::create(path)?;
+        Tera::default().render_str_to(template, &context! { days => &days }, false, &file)?;
         file.flush()?;
 
         Ok(())
