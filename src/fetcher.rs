@@ -1,6 +1,8 @@
 pub fn fetch(term: Term, group: &str) -> reqwest::Result<String> {
+    let branch = group[..3].to_lowercase();
+
     reqwest::blocking::get(format!(
-        "https://wel.wat.edu.pl/planyzajec/{term}/{group}.htm"
+        "https://{branch}.wat.edu.pl/planyzajec/{term}/{group}.htm"
     ))?
     .error_for_status()?
     .text()
