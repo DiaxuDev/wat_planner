@@ -7,10 +7,8 @@ use crate::cli::Cli;
 
 mod cache;
 mod cli;
-mod data;
 mod error;
 mod fetcher;
-mod parser;
 
 fn main() {
     // let today = chrono::Local::now().date_naive();

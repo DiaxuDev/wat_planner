@@ -1,25 +1,31 @@
-[package]
+[workspace]
+members = [ "crates/*" ]
+resolver = "3"
+
+[workspace.package]
 name = "wat_planner"
 version = "0.1.0"
 edition = "2024"
 
-[dependencies]
-chrono = { version = "0.4.45", features = ["serde"] }
-clap = { version = "4.6.7", features = ["derive"] }
-reqwest = { version = "0.13.5", features = ["blocking", "cookies", "gzip", "deflate"] }
+[workspace.dependencies]
+wat-parser.path = "crates/wat-parser"
+
+chrono = "0.4.45"
+clap = { features = [ "derive" ], version = "4.6.7" }
+reqwest = { features = [ "blocking", "cookies", "gzip", "deflate" ], version = "0.13.5" }
 scraper = "0.27.0"
-serde = { version = "1.0.229", features = ["derive"] }
+serde = { features = [ "derive" ], version = "1.0.229" }
 serde_json = "1.0.151"
-tera = { version = "2.4.0", features = ["fast"] }
+tera = { features = [ "fast" ], version = "2.4.0" }
 thiserror = "2.0.21"
 yansi = "1.0.1"
 
-[lints.clippy]
-suspicious = { level = "warn", priority = -1 }
+[workspace.lints.clippy]
 complexity = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
 perf = { level = "warn", priority = -1 }
 style = { level = "warn", priority = -1 }
-pedantic = { level = "warn", priority = -1 }
+suspicious = { level = "warn", priority = -1 }
 
 panic = "deny"
 unwrap_used = "deny"

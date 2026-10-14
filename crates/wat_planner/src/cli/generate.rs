@@ -5,8 +5,9 @@ use std::{ffi::OsStr, fs::File, io::Write, path::PathBuf};
 use chrono::{Datelike, NaiveDate};
 use serde::Serialize;
 use tera::{Tera, context};
+use wat_parser::ClassKind;
 
-use crate::{cache::read_or_save, data::ClassKind, error::Result, fetcher::Term};
+use crate::{cache::read_or_save, error::Result, fetcher::Term};
 
 #[derive(clap::Args, Debug)]
 pub struct GenerateCommand {
@@ -105,7 +106,7 @@ impl GenerateCommand {
                                 ClassKind::Pass => "zaliczenie",
                                 ClassKind::MakeUpPass => "zaliczenie poprawkowe",
                                 ClassKind::Retake => "powtarzany przedmiot",
-                                ClassKind::Unknown(inner) => inner,
+                                ClassKind::Unknown(inner) => inner.as_str(),
                             };
 
                             classes[i] = Some(TeraClass {

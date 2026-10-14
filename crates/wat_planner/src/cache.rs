@@ -4,11 +4,11 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use wat_parser::{Data, parse};
+
 use crate::{
-    data::Data,
     error::{PlannerError, Result},
     fetcher::{Term, fetch},
-    parser::parse,
 };
 
 pub fn save(group: &str, term: Term, path: &Path) -> Result<Data> {

@@ -7,7 +7,7 @@ pub enum PlannerError {
     #[error(transparent)]
     Serde(#[from] serde_json::Error),
     #[error("error parsing schedule")]
-    Parse(#[from] crate::parser::Error),
+    Parse(#[from] wat_parser::Error),
     #[error(transparent)]
     Tera(#[from] tera::Error),
     #[error("{0}")]

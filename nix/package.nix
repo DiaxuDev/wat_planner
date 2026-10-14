@@ -3,7 +3,7 @@
   rustPlatform,
 }:
 let
-  cargoToml = (lib.importTOML ../Cargo.toml).package;
+  cargoToml = (lib.importTOML ../Cargo.toml).workspace.package;
 in
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = cargoToml.name;
@@ -18,8 +18,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     lib.fileset.toSource {
       inherit root;
       fileset = lib.fileset.unions [
-        (root + /src)
-        (root + /include/template.html)
+        (root + /crates)
         (root + /Cargo.toml)
         (root + /Cargo.lock)
       ];

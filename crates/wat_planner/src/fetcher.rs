@@ -1,6 +1,6 @@
 use reqwest::{
-    Version,
     header::{self, HeaderMap, HeaderValue},
+    Version,
 };
 
 pub fn fetch(term: Term, group: &str) -> reqwest::Result<String> {

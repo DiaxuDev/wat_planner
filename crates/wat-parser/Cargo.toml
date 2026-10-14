@@ -1,0 +1,14 @@
+[package]
+name = "wat-parser"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+chrono.workspace = true
+scraper.workspace = true
+serde = { optional = true, workspace = true }
+thiserror.workspace = true
+
+[features]
+default = [  ]
+serde = [ "dep:serde", "chrono/serde" ]
