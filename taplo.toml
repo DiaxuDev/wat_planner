@@ -1,0 +1,14 @@
+exclude = [ ".direnv/**" ]
+
+[formatting]
+column_width = 120
+compact_arrays = false
+reorder_inline_tables = true
+reorder_keys = true
+
+[[rule]]
+include = [ "**/Cargo.toml" ]
+keys = [ "workspace.package", "package" ]
+
+[rule.formatting]
+reorder_keys = false
