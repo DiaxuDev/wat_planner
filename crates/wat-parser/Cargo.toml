@@ -12,3 +12,6 @@ thiserror.workspace = true
 [features]
 default = [  ]
 serde = [ "dep:serde", "chrono/serde" ]
+
+[lints]
+workspace = true

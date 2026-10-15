@@ -14,3 +14,6 @@ tera.workspace = true
 thiserror.workspace = true
 wat-parser = { features = [ "serde" ], workspace = true }
 yansi.workspace = true
+
+[lints]
+workspace = true
