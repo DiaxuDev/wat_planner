@@ -1,7 +1,17 @@
 {
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs?ref=nixos-unstable";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs?ref=nixos-unstable";
+    rust-overlay = {
+      url = "github:Oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
   outputs =
-    { self, nixpkgs }:
+    {
+      self,
+      nixpkgs,
+      rust-overlay,
+    }:
     let
       systems = [
         "x86_64-linux"
@@ -19,8 +29,21 @@
       );
 
       devShells = forAllSystems (
-        _: pkgs: {
-          default = pkgs.callPackage ./nix/shell.nix { };
+        _: pkgs:
+        let
+          rust = (rust-overlay.lib.mkRustBin { } pkgs).stable.latest.default.override {
+            targets = [
+              "x86_64-linux-android"
+              "aarch64-linux-android"
+            ];
+            extensions = [
+              "rust-analyzer"
+              "rust-src"
+            ];
+          };
+        in
+        {
+          default = pkgs.callPackage ./nix/shell.nix { inherit rust; };
         }
       );
     };
