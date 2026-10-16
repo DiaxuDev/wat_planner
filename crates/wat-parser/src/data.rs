@@ -8,7 +8,7 @@ pub struct Data {
     pub classes: HashMap<chrono::NaiveDate, [Option<Class>; 7]>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, PartialEq, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Class {
     pub code: String,

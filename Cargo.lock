@@ -2168,6 +2168,11 @@ dependencies = [
 [[package]]
 name = "wat-jni"
 version = "0.1.0"
+dependencies = [
+ "chrono",
+ "jni",
+ "wat-parser",
+]
 
 [[package]]
 name = "wat-parser"
