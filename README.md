@@ -72,7 +72,7 @@ Template files are expanded with `days` variable containing an array of `day` ob
 - `professors` - array of strings containing potential professors teaching this class
 - `info` - array of strings with additional information about the class, usually the room numer
 
-If you want to see an example usage of these variables take a look at how the default template is implemented [here](./include/template.html).
+If you want to see an example usage of these variables take a look at how the default template is implemented [here](./crates/wat_planner/include/template.html).
 
 ## Building
 
