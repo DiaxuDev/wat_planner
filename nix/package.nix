@@ -29,7 +29,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   meta = {
     description = "WAT schedule parser and presenter";
-    homepage = "github.com/DiaxuDev/wat_planner";
+    homepage = "https://github.com/DiaxuDev/wat_planner";
     license = lib.licenses.mpl20;
     mainProgram = "wat_planner";
   };
